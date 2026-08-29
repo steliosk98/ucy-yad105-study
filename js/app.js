@@ -133,7 +133,7 @@ function Home() {
     const st = topicStats(tp.id);
     return `<button class="list-item" data-go="#/topic/${tp.id}">
       <div class="row spread"><span class="t">${esc(topicName(tp.id))}</span>
-        <span class="tiny muted">${st.learned}/${st.total}</span></div>
+        <span class="tiny muted nowrap">${st.learned}/${st.total}</span></div>
       <div class="bar" style="margin-top:8px"><i class="${st.learned === st.total ? 'good' : ''}" style="width:${pct(st.learned / st.total)}%"></i></div>
     </button>`;
   }).join('');
@@ -146,10 +146,10 @@ function Home() {
       </div></div>
       <div style="flex:1">
         <div class="small muted">${esc(BANK.meta.reference)} · ${esc(t('weightNote'))}</div>
-        <div class="row wrap" style="margin-top:10px;gap:14px">
-          <div><b style="font-size:20px">${S.streak()}</b><div class="tiny muted">${esc(t('streak'))}</div></div>
-          <div><b style="font-size:20px">${doneToday}/${goal}</b><div class="tiny muted">${esc(t('todayCards'))}</div></div>
-          <div><b style="font-size:20px">${m.learnedN}/${m.total}</b><div class="tiny muted">${esc(t('learned'))}</div></div>
+        <div class="grid3" style="margin-top:10px;gap:8px">
+          <div><b style="font-size:19px">${S.streak()}</b><div class="tiny muted">${esc(t('streak'))}</div></div>
+          <div><b style="font-size:19px">${doneToday}/${goal}</b><div class="tiny muted">${esc(t('todayCards'))}</div></div>
+          <div><b style="font-size:19px">${m.learnedN}/${m.total}</b><div class="tiny muted">${esc(t('learned'))}</div></div>
         </div>
         <div class="bar" style="margin-top:10px"><i class="good" style="width:${pct(Math.min(1, doneToday / goal))}%"></i></div>
       </div>
@@ -552,7 +552,7 @@ function Stats() {
     const st = topicStats(tp.id);
     return `<button class="list-item" data-go="#/topic/${tp.id}">
       <div class="row spread"><span class="t">${esc(topicName(tp.id))}</span>
-        <span class="tiny muted">${st.acc === null ? '—' : pct(st.acc) + '%'} · ${st.learned}/${st.total}</span></div>
+        <span class="tiny muted nowrap">${st.acc === null ? '—' : pct(st.acc) + '%'} · ${st.learned}/${st.total}</span></div>
       <div class="bar" style="margin-top:8px"><i class="${st.learned === st.total ? 'good' : ''}" style="width:${pct(st.learned / st.total)}%"></i></div>
     </button>`;
   }).join('')}
