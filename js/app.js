@@ -14,7 +14,7 @@ const T = {
   en: {
     home: 'Home', cards: 'Cards', exam: 'Exam', browse: 'Browse', stats: 'Stats',
     due: 'Due now', newq: 'Unseen', learned: 'Learned', weak: 'Weak spots', starred: 'Starred',
-    readiness: 'Exam readiness', streak: 'Day streak', todayCards: 'Reviewed today',
+    readiness: 'Exam readiness', streak: 'Day streak', todayCards: 'Today',
     reviewDue: 'Review due cards', quick10: 'Quick 10 questions', mockExam: 'Full mock exam',
     drillWeak: 'Drill weak spots', continueStudy: 'Continue studying', allTopics: 'All topics',
     topics: 'Topics', start: 'Start', deck: 'Deck', length: 'Session length', difficulty: 'Difficulty',
