@@ -7,6 +7,7 @@ const defaults = () => ({
   lang: 'en',          // en | el | both
   theme: 'auto',       // auto | light | dark
   dailyGoal: 30,
+  examDate: '',        // YYYY-MM-DD, drives the suggested daily pace
   srs: {},             // id -> {ef, iv, rep, due, lapses, last}
   stats: {},           // id -> {seen, ok, bad}
   starred: [],

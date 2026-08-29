@@ -37,6 +37,8 @@ const T = {
     unanswered: 'unanswered', keyHint: 'Space flips · 1-4 grades', emptyDeck: 'Nothing due here. Pick another deck.',
     saved: 'Saved', pass: 'Pass', fail: 'Below target', target: 'Target 70%',
     weightNote: 'Technical exam = 65% of total score',
+    examDate: 'Exam date', daysLeft: 'days left', perDay: 'cards/day to cover everything',
+    today2: 'today', paceDone: 'Bank covered - keep reviewing',
   },
   el: {
     home: 'Αρχική', cards: 'Κάρτες', exam: 'Εξέταση', browse: 'Αναζήτηση', stats: 'Πρόοδος',
@@ -64,6 +66,8 @@ const T = {
     unanswered: 'αναπάντητες', keyHint: 'Space γύρισμα · 1-4 βαθμός', emptyDeck: 'Τίποτα εδώ. Διάλεξε άλλη τράπουλα.',
     saved: 'Αποθηκεύτηκε', pass: 'Επιτυχία', fail: 'Κάτω από στόχο', target: 'Στόχος 70%',
     weightNote: 'Η τεχνική εξέταση είναι 65% του συνόλου',
+    examDate: 'Ημερομηνία εξέτασης', daysLeft: 'μέρες απομένουν', perDay: 'κάρτες/μέρα για πλήρη κάλυψη',
+    today2: 'σήμερα', paceDone: 'Η τράπεζα καλύφθηκε - συνέχισε επανάληψη',
   }
 };
 const uiLang = () => (S.state.lang === 'el' ? 'el' : 'en');
@@ -114,6 +118,14 @@ function mastery() {
   };
 }
 
+// Days until the exam and how many unseen cards a day that leaves.
+function pace() {
+  if (!S.state.examDate) return null;
+  const days = Math.ceil((new Date(S.state.examDate + 'T23:59:59') - Date.now()) / 864e5);
+  const unseen = decks.new().length;
+  return { days, unseen, perDay: days > 0 ? Math.ceil(unseen / days) : unseen };
+}
+
 function topicStats(id) {
   const qs = BANK.questions.filter(q => q.t === id);
   const learned = qs.filter(q => S.isLearned(q.id)).length;
@@ -162,6 +174,17 @@ function Home() {
     <div class="card tight" style="margin:0;text-align:center"><b style="font-size:20px">${weak}</b><div class="tiny muted">${esc(t('weak'))}</div></div>
   </div>
 
+  ${(() => {
+    const p = pace();
+    if (!p) return '';
+    return `<div class="card tight row spread">
+      <div><b style="font-size:19px">${p.days > 0 ? p.days : 0}</b>
+        <span class="small muted"> ${esc(p.days === 1 ? t('today2') : t('daysLeft'))}</span></div>
+      <div class="tiny muted" style="text-align:right">${p.unseen
+        ? `<b style="font-size:15px;color:var(--brand)">${p.perDay}</b> ${esc(t('perDay'))}`
+        : esc(t('paceDone'))}</div>
+    </div>`;
+  })()}
   <div class="stack">
     <button class="btn primary" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
     <button class="btn" data-go="#/exam/run?n=10&mode=mcq&time=0">${esc(t('quick10'))}</button>
@@ -288,7 +311,7 @@ function CardsRun() {
     <div class="q">${esc(qText(q))}</div>
     ${qAlt(q) ? `<div class="alt">${esc(qAlt(q))}</div>` : ''}
     ${session.flipped ? `<div class="a">${esc(aText(q))}${aAlt(q) ? `<div class="alt">${esc(aAlt(q))}</div>` : ''}</div>` : ''}
-    <div class="hint">${session.flipped ? esc(topicName(q.t)) : esc(t('showAnswer'))}</div>
+    <div class="hint">${esc(topicName(q.t))}</div>
   </div>
   ${session.flipped ? `<div class="grade">
     <button class="btn g0" data-grade="0"><b>${esc(t('again'))}</b><i>${nextIv(0)}</i></button>
@@ -566,6 +589,8 @@ function Stats() {
 function Settings() {
   return `
   <section class="card">
+    <label class="field"><span>${esc(t('examDate'))}</span>
+      <input id="examDate" type="date" value="${esc(S.state.examDate)}"></label>
     <label class="field"><span>${esc(t('dailyGoal'))}</span>
       <input id="goal" type="number" min="5" max="200" step="5" value="${S.state.dailyGoal}"></label>
     <label class="field"><span>${esc(t('settings'))} · language</span>
@@ -736,6 +761,7 @@ document.addEventListener('input', (e) => {
     window._sT = setTimeout(render, 220);
   }
   if (e.target.id === 'goal') { S.state.dailyGoal = Math.max(5, Number(e.target.value) || 30); S.save(); }
+  if (e.target.id === 'examDate') { S.state.examDate = e.target.value; S.save(); }
 });
 
 document.addEventListener('change', (e) => {

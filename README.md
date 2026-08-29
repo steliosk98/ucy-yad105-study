@@ -21,6 +21,8 @@ Static site, no build step, no backend. All progress lives in your browser's
   highlighting and starring.
 - **Progress**: readiness score, daily streak, 14-day activity, per-topic mastery and
   accuracy, exam history, weak-spot drills.
+- **Study pace** — set your exam date in Settings and the home screen shows the days left
+  and how many unseen cards a day are needed to cover the whole bank in time.
 - **Bilingual** EN / EL / side-by-side, dark mode, installable as a PWA and usable offline.
 - Keyboard: `Space` flips a card, `1-4` grades it, `A-D` answers, arrows move between
   exam questions.
