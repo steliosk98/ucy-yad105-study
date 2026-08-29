@@ -80,16 +80,47 @@ const aAlt = (q) => (S.state.lang === 'both' ? q.ag : null);
 
 // ---------------------------------------------------------------- helpers
 function toast(msg) {
-  let el = $('.toast');
-  if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
+  const el = $('#toast');
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 1800);
+  el._t = setTimeout(() => el.classList.remove('show'), 2200);
 }
+
+/** Inline reference into the sprite in index.html. */
+const ico = (name, cls = '') =>
+  `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+
 const pct = (n) => Math.round(n * 100);
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-const diffPill = (d) => `<span class="pill ${d}">${t(d === 'easy' ? 'easy' : d === 'medium' ? 'medium' : 'hard')}</span>`;
+
+// difficulty carries a dot as well as colour, so it never reads by colour alone
+const diffPill = (d) => `<span class="pill ${d}"><i class="dot"></i>${esc(t(d))}</span>`;
+
+/** Animated progress ring. `p` is 0..1. */
+function ring(p, label) {
+  const C = 2 * Math.PI * 52;
+  return `<div class="ring">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="var(--accent-2)"/><stop offset="100%" stop-color="var(--accent)"/>
+      </linearGradient></defs>
+      <circle class="track" cx="58" cy="58" r="52"/>
+      <circle class="fill" cx="58" cy="58" r="52"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - p)).toFixed(1)}"/>
+    </svg>
+    <div class="cap"><div><b>${pct(p)}%</b><div class="tiny muted">${esc(label)}</div></div></div>
+  </div>`;
+}
+
+const statTile = (n, label, iconName) => `<div class="card tight tile">
+  <div class="row" style="gap:5px;color:var(--fg-faint);min-width:0">
+    ${ico(iconName, 'ico-sm')}<span class="tiny label">${esc(label)}</span></div>
+  <div class="stat-n">${n}</div>
+</div>`;
+
+const starBtn = (id, on) =>
+  `<button class="star ${on ? 'on' : ''}" data-star="${id}" aria-pressed="${on}" aria-label="${on ? 'Unstar' : 'Star'} question">${ico('star')}</button>`;
 
 function go(hash) { location.hash = hash; }
 
@@ -152,50 +183,53 @@ function Home() {
 
   return `
   <section class="card">
-    <div class="row" style="gap:16px">
-      <div class="ring" style="--p:${pct(m.readiness)}"><div>
-        <div><b style="font-size:22px">${pct(m.readiness)}%</b><div class="tiny muted">${esc(t('readiness'))}</div></div>
-      </div></div>
-      <div style="flex:1">
-        <div class="small muted">${esc(BANK.meta.reference)} · ${esc(t('weightNote'))}</div>
-        <div class="grid3" style="margin-top:10px;gap:8px">
-          <div><b style="font-size:19px">${S.streak()}</b><div class="tiny muted">${esc(t('streak'))}</div></div>
-          <div><b style="font-size:19px">${doneToday}/${goal}</b><div class="tiny muted">${esc(t('todayCards'))}</div></div>
-          <div><b style="font-size:19px">${m.learnedN}/${m.total}</b><div class="tiny muted">${esc(t('learned'))}</div></div>
+    <div class="row" style="gap:var(--s-4)">
+      ${ring(m.readiness, t('readiness'))}
+      <div style="flex:1;min-width:0">
+        <div class="small" style="font-weight:550">${esc(BANK.meta.reference)}</div>
+        <div class="tiny muted" style="margin-top:2px">${esc(t('weightNote'))}</div>
+        <div class="row" style="gap:var(--s-2);margin-top:var(--s-3)">
+          ${ico('flame', 'ico-sm')}<span class="small"><b class="num">${S.streak()}</b>
+          <span class="muted">${esc(t('streak'))}</span></span>
         </div>
-        <div class="bar" style="margin-top:10px"><i class="good" style="width:${pct(Math.min(1, doneToday / goal))}%"></i></div>
       </div>
     </div>
+    <div class="hero-stats">
+      <div><div class="stat-n">${doneToday}<span class="muted">/${goal}</span></div><div class="tiny muted">${esc(t('todayCards'))}</div></div>
+      <div><div class="stat-n">${m.learnedN}<span class="muted">/${m.total}</span></div><div class="tiny muted">${esc(t('learned'))}</div></div>
+      <div><div class="stat-n">${pct(m.accuracy)}<span class="muted">%</span></div><div class="tiny muted">${esc(t('accuracy'))}</div></div>
+    </div>
+    <div class="bar" style="margin-top:var(--s-3)"><i class="good" style="width:${pct(Math.min(1, doneToday / goal))}%"></i></div>
   </section>
 
-  <div class="grid3" style="margin-bottom:14px">
-    <div class="card tight" style="margin:0;text-align:center"><b style="font-size:20px">${due}</b><div class="tiny muted">${esc(t('due'))}</div></div>
-    <div class="card tight" style="margin:0;text-align:center"><b style="font-size:20px">${fresh}</b><div class="tiny muted">${esc(t('newq'))}</div></div>
-    <div class="card tight" style="margin:0;text-align:center"><b style="font-size:20px">${weak}</b><div class="tiny muted">${esc(t('weak'))}</div></div>
+  <div class="grid3" style="margin-bottom:var(--s-3)">
+    ${statTile(due, t('due'), 'clock')}
+    ${statTile(fresh, t('newq'), 'layers')}
+    ${statTile(weak, t('weak'), 'target')}
   </div>
 
   ${(() => {
     const p = pace();
     if (!p) return '';
     return `<div class="card tight row spread">
-      <div><b style="font-size:19px">${p.days > 0 ? p.days : 0}</b>
-        <span class="small muted"> ${esc(p.days === 1 ? t('today2') : t('daysLeft'))}</span></div>
+      <div class="row" style="gap:var(--s-2)">${ico('target', 'ico-sm')}<div><b class="stat-n">${p.days > 0 ? p.days : 0}</b>
+        <span class="small muted"> ${esc(p.days === 1 ? t('today2') : t('daysLeft'))}</span></div></div>
       <div class="tiny muted" style="text-align:right">${p.unseen
         ? `<b style="font-size:15px;color:var(--brand)">${p.perDay}</b> ${esc(t('perDay'))}`
         : esc(t('paceDone'))}</div>
     </div>`;
   })()}
   <div class="stack">
-    <button class="btn primary" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
-    <button class="btn" data-go="#/exam/run?n=10&mode=mcq&time=0">${esc(t('quick10'))}</button>
-    <button class="btn" data-go="#/exam">${esc(t('mockExam'))}</button>
-    ${weak ? `<button class="btn" data-go="#/cards/run?deck=weak&n=20">${esc(t('drillWeak'))} (${weak})</button>` : ''}
+    <button class="btn primary" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${ico('cards')}${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
+    <button class="btn" data-go="#/exam/run?n=10&mode=mcq&time=0">${ico('bolt')}${esc(t('quick10'))}</button>
+    <button class="btn" data-go="#/exam">${ico('exam')}${esc(t('mockExam'))}</button>
+    ${weak ? `<button class="btn" data-go="#/cards/run?deck=weak&n=20">${ico('target')}${esc(t('drillWeak'))} (${weak})</button>` : ''}
   </div>
 
   <div class="sec-title">${esc(t('topics'))}</div>
   ${topicRows}
   <div style="height:8px"></div>
-  <button class="btn ghost" data-go="#/settings">${esc(t('settings'))}</button>`;
+  <button class="btn ghost" data-go="#/settings">${ico('settings')}${esc(t('settings'))}</button>`;
 }
 
 // ---------------------------------------------------------------- TOPIC
@@ -227,7 +261,7 @@ function qaBlock(q, highlight = '') {
   const mark = (s) => highlight ? esc(s).replace(new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'), '<mark>$1</mark>') : esc(s);
   return `<details class="qa" data-id="${q.id}">
     <summary><div class="row spread"><span>${mark(qText(q))}</span>
-      <span class="star ${S.isStarred(q.id) ? 'on' : ''}" data-star="${q.id}">${S.isStarred(q.id) ? '&#9733;' : '&#9734;'}</span></div>
+      ${starBtn(q.id, S.isStarred(q.id))}</div>
       ${qAlt(q) ? `<div class="tiny muted" style="margin-top:4px;font-weight:400">${mark(qAlt(q))}</div>` : ''}
     </summary>
     <div class="body">${mark(aText(q))}
@@ -282,40 +316,77 @@ function CardsRun() {
   if (!session) return CardsSetup();
   if (session.i >= session.queue.length) {
     return `<section class="card" style="text-align:center">
-      <div class="result-big">${session.done}</div>
-      <div class="muted" style="margin-top:6px">${esc(t('cardsReviewed'))}</div>
-      <h2 style="margin-top:14px;font-size:18px">${esc(t('sessionDone'))}</h2>
-      <div class="stack" style="margin-top:16px">
-        <button class="btn primary" data-go="#/cards">${esc(t('start'))}</button>
-        <button class="btn ghost" data-go="#/">${esc(t('backHome'))}</button>
+      <div style="color:var(--good);display:flex;justify-content:center">${ico('check', 'ico-lg')}</div>
+      <div class="stat-n" style="font-size:38px;margin-top:var(--s-2)">${session.done}</div>
+      <div class="muted small">${esc(t('cardsReviewed'))}</div>
+      <h2 style="margin-top:var(--s-3);font-size:18px">${esc(t('sessionDone'))}</h2>
+      <div class="stack" style="margin-top:var(--s-4)">
+        <button class="btn primary" data-go="#/cards">${ico('cards')}${esc(t('start'))}</button>
+        <button class="btn ghost" data-go="#/">${ico('home')}${esc(t('backHome'))}</button>
       </div></section>`;
   }
   const q = session.queue[session.i];
-  if (!q) return `<div class="empty">${esc(t('emptyDeck'))}</div>`;
+  if (!q) return `<div class="empty">${ico('layers')}<div>${esc(t('emptyDeck'))}</div></div>`;
   const nextIv = (g) => {
     const d = S.nextInterval(q.id, g);
     return d === 0 ? '<1m' : d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
   };
   return `
-  <div class="row spread small muted" style="margin-bottom:10px">
-    <span>${session.i + 1} ${esc(t('of'))} ${session.queue.length}</span>
-    <span class="row" style="gap:6px">${diffPill(q.d)}
-      <button class="star ${S.isStarred(q.id) ? 'on' : ''}" data-star="${q.id}">${S.isStarred(q.id) ? '&#9733;' : '&#9734;'}</button></span>
+  <div class="row spread" style="margin-bottom:var(--s-2)">
+    <span class="small muted num">${session.i + 1} ${esc(t('of'))} ${session.queue.length}</span>
+    <span class="row" style="gap:var(--s-2)">${diffPill(q.d)}${starBtn(q.id, S.isStarred(q.id))}</span>
   </div>
-  <div class="bar" style="margin-bottom:12px"><i style="width:${pct(session.i / session.queue.length)}%"></i></div>
-  <div class="fc" id="card">
-    <div class="q">${esc(qText(q))}</div>
-    ${qAlt(q) ? `<div class="alt">${esc(qAlt(q))}</div>` : ''}
-    ${session.flipped ? `<div class="a">${esc(aText(q))}${aAlt(q) ? `<div class="alt">${esc(aAlt(q))}</div>` : ''}</div>` : ''}
-    <div class="hint">${esc(topicName(q.t))}</div>
+  <div class="bar" style="margin-bottom:var(--s-4)"><i style="width:${pct(session.i / session.queue.length)}%"></i></div>
+
+  <div class="fc-scene">
+    <div class="fc ${session.flipped ? 'flipped' : ''}" id="card" role="button" tabindex="0"
+         aria-label="${esc(t('showAnswer'))}">
+      <div class="face front" ${session.flipped ? 'aria-hidden="true"' : ''}>
+        <span class="label">${ico('layers', 'ico-sm')}${esc(topicName(q.t))}</span>
+        <div class="mid">
+          <div class="q">${esc(qText(q))}</div>
+          ${qAlt(q) ? `<div class="alt">${esc(qAlt(q))}</div>` : ''}
+        </div>
+        <div class="foot">${ico('chevron', 'ico-sm')}</div>
+      </div>
+      <div class="face back" ${session.flipped ? '' : 'aria-hidden="true"'}>
+        <span class="label">${ico('check', 'ico-sm')}${esc(t('modelAnswer'))}</span>
+        <div class="mid">
+          <div class="a">${esc(aText(q))}</div>
+          ${aAlt(q) ? `<div class="alt">${esc(aAlt(q))}</div>` : ''}
+        </div>
+        <div class="foot">${esc(qText(q))}</div>
+      </div>
+    </div>
   </div>
-  ${session.flipped ? `<div class="grade">
-    <button class="btn g0" data-grade="0"><b>${esc(t('again'))}</b><i>${nextIv(0)}</i></button>
-    <button class="btn" data-grade="3"><b>${esc(t('hardB'))}</b><i>${nextIv(3)}</i></button>
-    <button class="btn" data-grade="4"><b>${esc(t('good'))}</b><i>${nextIv(4)}</i></button>
-    <button class="btn g5" data-grade="5"><b>${esc(t('easyB'))}</b><i>${nextIv(5)}</i></button>
-  </div>` : `<button class="btn primary" style="margin-top:12px" id="flip">${esc(t('showAnswer'))}</button>`}
-  <div class="tiny muted" style="text-align:center;margin-top:10px">${esc(t('keyHint'))}</div>`;
+
+  <div id="cardActions">${session.flipped ? gradeRow(nextIv) : revealBtn()}</div>
+  <div class="tiny muted" style="text-align:center;margin-top:var(--s-3)">${esc(t('keyHint'))}</div>`;
+}
+
+const revealBtn = () => `<button class="btn primary" id="flip">${ico('chevron')}${esc(t('showAnswer'))}</button>`;
+
+const gradeRow = (nextIv) => `<div class="grade">
+  <button class="btn g0" data-grade="0"><b>${esc(t('again'))}</b><i>${nextIv(0)}</i></button>
+  <button class="btn" data-grade="3"><b>${esc(t('hardB'))}</b><i>${nextIv(3)}</i></button>
+  <button class="btn" data-grade="4"><b>${esc(t('good'))}</b><i>${nextIv(4)}</i></button>
+  <button class="btn g5" data-grade="5"><b>${esc(t('easyB'))}</b><i>${nextIv(5)}</i></button>
+</div>`;
+
+/** Flip in place so the 3D transition actually plays (a re-render would skip it). */
+function flipCard() {
+  if (!session || session.flipped) return;
+  session.flipped = true;
+  const q = session.queue[session.i];
+  const nextIv = (g) => {
+    const d = S.nextInterval(q.id, g);
+    return d === 0 ? '<1m' : d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
+  };
+  $('#card')?.classList.add('flipped');
+  $('#card .front')?.setAttribute('aria-hidden', 'true');
+  $('#card .back')?.removeAttribute('aria-hidden');
+  const actions = $('#cardActions');
+  if (actions) actions.innerHTML = gradeRow(nextIv);
 }
 
 function gradeCard(g) {
@@ -381,11 +452,11 @@ function ExamSetup() {
 
 function examHistory() {
   const h = S.state.exams.slice().reverse();
-  if (!h.length) return `<div class="empty">${esc(t('noExams'))}</div>`;
+  if (!h.length) return `<div class="empty">${ico('exam')}<div>${esc(t('noExams'))}</div></div>`;
   return h.slice(0, 15).map(e => {
     const p = pct(e.score / e.total);
     return `<div class="list-item" style="cursor:default">
-      <div class="row spread"><span class="t">${p}% · ${e.score}/${e.total}</span>
+      <div class="row spread"><span class="t num">${p}% · ${e.score}/${e.total}</span>
         <span class="tiny muted">${new Date(e.ts).toLocaleDateString()}</span></div>
       <div class="tiny muted" style="margin-top:3px">${esc(t(e.mode === 'written' ? 'written' : e.mode === 'mixed' ? 'mixed' : 'mcq'))}${e.secs ? ` · ${fmtTime(e.secs)}` : ''}</div>
       <div class="bar" style="margin-top:7px"><i class="${p >= 70 ? 'good' : ''}" style="width:${p}%"></i></div>
@@ -435,16 +506,17 @@ function ExamRun() {
     const { options, answerIndex } = makeChoices(q, BANK.questions, S.state.lang === 'el' ? 'el' : 'en');
     exam.answers[q.id] ||= {};
     exam.answers[q.id].correctIndex = answerIndex;
-    body = options.map((o, k) => `<button class="opt ${ans?.pick === k ? 'sel' : ''}" data-pick="${k}">
-        <em>${'ABCD'[k]}</em><span>${esc(o.text)}</span></button>`).join('');
+    body = options.map((o, k) => `<button class="opt ${ans?.pick === k ? 'sel' : ''}" data-pick="${k}"
+        aria-pressed="${ans?.pick === k}"><span class="key">${'ABCD'[k]}</span><span>${esc(o.text)}</span></button>`).join('');
   }
 
   return `
   <div class="qhead">
-    <span class="small muted">${esc(t('question'))} ${exam.i + 1}/${exam.questions.length}</span>
-    <span class="row" style="gap:8px">
-      ${left !== null ? `<span class="timer ${left < 60 ? 'low' : ''}" id="clock">${fmtTime(left)}</span>` : ''}
-      <button class="star ${exam.flags[q.id] ? 'on' : ''}" data-flagq="${q.id}">&#9873;</button>
+    <span class="small muted num">${esc(t('question'))} ${exam.i + 1}/${exam.questions.length}</span>
+    <span class="row" style="gap:var(--s-2)">
+      ${left !== null ? `<span class="timer ${left < 60 ? 'low' : ''}" id="clock">${ico('clock', 'ico-sm')}<span>${fmtTime(left)}</span></span>` : ''}
+      <button class="star ${exam.flags[q.id] ? 'on' : ''}" data-flagq="${q.id}"
+        aria-pressed="${!!exam.flags[q.id]}" aria-label="${esc(t('flag'))}">${ico('flag')}</button>
     </span>
   </div>
   <div class="bar" style="margin-bottom:14px"><i style="width:${pct(answered / exam.questions.length)}%"></i></div>
@@ -454,10 +526,10 @@ function ExamRun() {
     <div style="margin-top:14px">${body}</div>
   </section>
   <div class="grid2">
-    <button class="btn ghost" id="prev" ${exam.i === 0 ? 'disabled' : ''}>${esc(t('prev'))}</button>
+    <button class="btn ghost" id="prev" ${exam.i === 0 ? 'disabled' : ''}>${ico('back')}${esc(t('prev'))}</button>
     ${exam.i === exam.questions.length - 1
       ? `<button class="btn primary" id="submit">${esc(t('submit'))}</button>`
-      : `<button class="btn primary" id="next">${esc(t('next'))}</button>`}
+      : `<button class="btn primary" id="next">${esc(t('next'))}${ico('chevron')}</button>`}
   </div>
   <button class="btn ghost sm" style="width:100%;margin-top:10px" id="submit2">${esc(t('submit'))} (${answered}/${exam.questions.length})</button>`;
 }
@@ -497,9 +569,8 @@ function ExamResult() {
   const wrong = r.detail.filter(d => !d.ok).map(d => QBY[d.id]);
   return `
   <section class="card" style="text-align:center">
-    <div class="ring" style="--p:${p};margin:0 auto"><div><div>
-      <b style="font-size:24px">${p}%</b><div class="tiny muted">${r.score}/${r.total}</div></div></div></div>
-    <div style="margin-top:12px;font-weight:700;color:${p >= 70 ? 'var(--good)' : 'var(--warn)'}">${esc(p >= 70 ? t('pass') : t('fail'))}</div>
+    <div style="display:flex;justify-content:center">${ring(r.score / r.total, `${r.score}/${r.total}`)}</div>
+    <div class="verdict ${p >= 70 ? 'pass' : 'miss'}">${ico(p >= 70 ? 'check' : 'target', 'ico-sm')}${esc(p >= 70 ? t('pass') : t('fail'))}</div>
     <div class="tiny muted">${esc(t('target'))} · ${fmtTime(r.secs)}</div>
   </section>
   <div class="sec-title">${esc(t('byTopic'))}</div>
@@ -509,9 +580,9 @@ function ExamResult() {
       <div class="bar" style="margin-top:7px"><i class="${v.ok === v.n ? 'good' : ''}" style="width:${pct(v.ok / v.n)}%"></i></div>
     </div>`).join('')}
   <div class="stack" style="margin-top:14px">
-    ${wrong.length ? `<button class="btn primary" id="retryWrong">${esc(t('retryWrong'))} (${wrong.length})</button>` : ''}
-    <button class="btn" data-go="#/exam">${esc(t('exam'))}</button>
-    <button class="btn ghost" data-go="#/">${esc(t('backHome'))}</button>
+    ${wrong.length ? `<button class="btn primary" id="retryWrong">${ico('target')}${esc(t('retryWrong'))} (${wrong.length})</button>` : ''}
+    <button class="btn" data-go="#/exam">${ico('exam')}${esc(t('exam'))}</button>
+    <button class="btn ghost" data-go="#/">${ico('home')}${esc(t('backHome'))}</button>
   </div>
   ${wrong.length ? `<div class="sec-title">${esc(t('review'))}</div>${wrong.map(q => qaBlock(q)).join('')}` : ''}`;
 }
@@ -537,20 +608,25 @@ function Browse() {
       <select id="bdiff"><option value="">${esc(t('all'))}</option>
         ${['easy', 'medium', 'hard'].map(d => `<option value="${d}" ${browseState.diff === d ? 'selected' : ''}>${esc(t(d))}</option>`).join('')}</select>
     </div>
-    <button class="btn sm ${browseState.starred ? 'primary' : ''}" style="margin-top:10px;width:100%" id="bstar">
-      &#9733; ${esc(t('starred'))} (${S.state.starred.length})</button>
+    <button class="btn sm ${browseState.starred ? 'primary' : ''}" style="margin-top:var(--s-3);width:100%"
+      id="bstar" aria-pressed="${browseState.starred}">${ico('star', 'ico-sm')}${esc(t('starred'))} (${S.state.starred.length})</button>
   </section>
-  <div class="row spread small muted" style="margin:0 4px 8px"><span>${list.length} ${esc(t('results'))}</span>
+  <div class="row spread small muted" style="margin:0 var(--s-1) var(--s-2)"><span class="num">${list.length} ${esc(t('results'))}</span>
     ${list.length ? `<button class="btn sm" data-quiz-list="1">${esc(t('exam'))}</button>` : ''}</div>
-  ${list.length ? list.slice(0, 120).map(q => qaBlock(q, term)).join('') : `<div class="empty">${esc(t('noResults'))}</div>`}
+  ${list.length ? list.slice(0, 120).map(q => qaBlock(q, term)).join('') : `<div class="empty">${ico('search')}<div>${esc(t('noResults'))}</div></div>`}
   ${list.length > 120 ? `<div class="empty tiny">+${list.length - 120}</div>` : ''}`;
 }
 
 // ---------------------------------------------------------------- STATS
 function Stats() {
   const m = mastery();
-  const days = Object.keys(S.state.days).sort().slice(-14);
-  const max = Math.max(1, ...days.map(d => S.state.days[d]));
+  // fixed 14-day window, zero-filled: the chart keeps its shape from day one
+  const days = Array.from({ length: 14 }, (_, k) => {
+    const d = new Date(); d.setDate(d.getDate() - (13 - k));
+    return S.today(d);
+  });
+  const max = Math.max(1, ...days.map(d => S.state.days[d] || 0));
+  const studied = days.filter(d => S.state.days[d]).length;
   const weak = decks.weak();
   return `
   <section class="card">
@@ -559,11 +635,13 @@ function Stats() {
       <div><b style="font-size:20px">${pct(m.learned)}%</b><div class="tiny muted">${esc(t('mastery'))}</div></div>
       <div><b style="font-size:20px">${pct(m.accuracy)}%</b><div class="tiny muted">${esc(t('accuracy'))}</div></div>
     </div>
-    <div class="row" style="gap:3px;align-items:flex-end;height:70px;margin-top:16px">
-      ${days.length ? days.map(d => `<div style="flex:1;text-align:center" title="${d}: ${S.state.days[d]}">
-        <div style="height:${Math.round(56 * S.state.days[d] / max)}px;background:var(--brand);border-radius:4px 4px 0 0"></div>
-        <div class="tiny muted" style="font-size:9px">${d.slice(8)}</div></div>`).join('')
-      : `<div class="empty tiny" style="flex:1">—</div>`}
+    <div class="spark" role="img" aria-label="${studied} of the last 14 days studied">
+      ${days.map((d, k) => {
+        const n = S.state.days[d] || 0;
+        return `<div title="${d}: ${n}">
+          <i class="${n ? '' : 'zero'}" style="height:${n ? Math.max(6, Math.round(52 * n / max)) : 3}px;animation-delay:${k * 30}ms"></i>
+          <span>${d.slice(8)}</span></div>`;
+      }).join('')}
     </div>
   </section>
   <div class="sec-title">${esc(t('byTopic'))}</div>
@@ -595,9 +673,9 @@ function Settings() {
         <option value="el" ${S.state.lang === 'el' ? 'selected' : ''}>Ελληνικά</option>
         <option value="both" ${S.state.lang === 'both' ? 'selected' : ''}>EN + EL</option></select></label>
     <div class="stack">
-      <button class="btn" id="export">${esc(t('exportD'))}</button>
-      <button class="btn" id="import">${esc(t('importD'))}</button>
-      <button class="btn" id="reset" style="color:var(--bad)">${esc(t('resetD'))}</button>
+      <button class="btn" id="export">${ico('download')}${esc(t('exportD'))}</button>
+      <button class="btn" id="import">${ico('upload')}${esc(t('importD'))}</button>
+      <button class="btn danger" id="reset">${ico('trash')}${esc(t('resetD'))}</button>
     </div>
   </section>
   <div class="card small muted">
@@ -641,10 +719,17 @@ function render() {
   else { html = Home(); }
 
   view.innerHTML = html;
+  view.classList.remove('view-enter');
+  void view.offsetWidth;                 // restart the stagger on every view change
+  view.classList.add('view-enter');
   $('#topTitle').textContent = title;
   $('#backBtn').hidden = !back;
   $('#langBtn').textContent = S.state.lang === 'both' ? 'EN/EL' : S.state.lang.toUpperCase();
-  for (const a of document.querySelectorAll('.tabbar a')) a.classList.toggle('active', a.dataset.tab === tab);
+  for (const a of document.querySelectorAll('.tabbar a')) {
+    const on = a.dataset.tab === tab;
+    a.classList.toggle('active', on);
+    on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
+  }
   document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t(n.dataset.i18n.split('.')[1]); });
   window.scrollTo(0, 0);
 
@@ -660,14 +745,14 @@ function startClock() {
     if (!exam || exam.result) return clearInterval(clockTimer);
     const left = Math.max(0, Math.round((exam.endsAt - Date.now()) / 1000));
     const c = $('#clock');
-    if (c) { c.textContent = fmtTime(left); c.classList.toggle('low', left < 60); }
+    if (c) { c.querySelector('span').textContent = fmtTime(left); c.classList.toggle('low', left < 60); }
     if (left === 0) { clearInterval(clockTimer); finishExam(true); }
   }, 1000);
 }
 
 // ---------------------------------------------------------------- events
 document.addEventListener('click', (e) => {
-  const el = e.target.closest('[data-go],[data-star],[data-grade],[data-pick],[data-self],[data-flagq],button');
+  const el = e.target.closest('[data-go],[data-star],[data-grade],[data-pick],[data-self],[data-flagq],button,#card');
   if (!el) return;
 
   if (el.dataset.go) { go(el.dataset.go); return; }
@@ -676,7 +761,7 @@ document.addEventListener('click', (e) => {
     e.preventDefault(); e.stopPropagation();
     const on = S.toggleStar(el.dataset.star);
     el.classList.toggle('on', on);
-    el.innerHTML = on ? '&#9733;' : '&#9734;';
+    el.setAttribute('aria-pressed', String(on));
     return;
   }
   if (el.dataset.flagq) {
@@ -696,7 +781,7 @@ document.addEventListener('click', (e) => {
   }
 
   switch (el.id) {
-    case 'flip': case 'card': session.flipped = true; render(); break;
+    case 'flip': case 'card': flipCard(); break;
     case 'startCards':
       startCards({ deck: $('#deck').value, topic: $('#topic').value, diff: $('#diff').value, n: $('#len').value });
       history.replaceState(null, '', '#/cards/run');
@@ -770,7 +855,7 @@ document.addEventListener('keydown', (e) => {
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const p = parseRoute().path;
   if (p === '/cards/run' && session) {
-    if (e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); if (!session.flipped) { session.flipped = true; render(); } }
+    if (e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
     else if (session.flipped && '1234'.includes(e.key)) gradeCard([0, 3, 4, 5][Number(e.key) - 1]);
   }
   if (p === '/exam/run' && exam && !exam.result) {
@@ -787,9 +872,15 @@ $('#langBtn').onclick = () => {
   S.state.lang = { en: 'el', el: 'both', both: 'en' }[S.state.lang];
   S.save(); render();
 };
+function paintThemeBtn() {
+  const icon = { auto: 'i-auto', light: 'i-sun', dark: 'i-moon' }[S.state.theme];
+  $('#themeBtn').querySelector('use').setAttribute('href', '#' + icon);
+  $('#themeBtn').setAttribute('aria-label', `Theme: ${S.state.theme}`);
+}
 $('#themeBtn').onclick = () => {
   S.state.theme = { auto: 'light', light: 'dark', dark: 'auto' }[S.state.theme];
   document.documentElement.dataset.theme = S.state.theme;
+  paintThemeBtn();
   S.save(); toast(S.state.theme);
 };
 
@@ -803,11 +894,14 @@ window.addEventListener('hashchange', () => {
 // ---------------------------------------------------------------- boot
 (async function boot() {
   document.documentElement.dataset.theme = S.state.theme;
+  paintThemeBtn();
   try {
     const res = await fetch('data/questions.json');
     BANK = await res.json();
   } catch (e) {
-    view.innerHTML = `<div class="empty">Could not load question bank.<br><span class="tiny">${esc(e.message)}</span></div>`;
+    view.innerHTML = `<div class="empty">${ico('x')}<div>Could not load question bank.</div>
+      <div class="tiny" style="margin-top:8px">${esc(e.message)}</div>
+      <button class="btn sm" style="margin-top:16px" onclick="location.reload()">Retry</button></div>`;
     return;
   }
   QBY = Object.fromEntries(BANK.questions.map(q => [q.id, q]));
