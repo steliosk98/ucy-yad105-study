@@ -722,6 +722,8 @@ function render() {
   view.classList.remove('view-enter');
   void view.offsetWidth;                 // restart the stagger on every view change
   view.classList.add('view-enter');
+  // drives Greek-correct uppercasing (accents are dropped in caps) and screen-reader voice
+  document.documentElement.lang = uiLang();
   $('#topTitle').textContent = title;
   $('#backBtn').hidden = !back;
   $('#langBtn').textContent = S.state.lang === 'both' ? 'EN/EL' : S.state.lang.toUpperCase();
