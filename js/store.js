@@ -88,10 +88,11 @@ export function toggleStar(id) {
 }
 export const isStarred = (id) => state.starred.includes(id);
 
-// Weak = answered at least twice with accuracy under 60%, or lapsed 2+ times.
+// Weak = missed at least once and still under 60% right, or lapsed twice.
+// One miss is enough to earn a drill: that is the point of practising.
 export function isWeak(id) {
   const s = state.stats[id], c = state.srs[id];
-  if (s && s.seen >= 2 && s.ok / s.seen < 0.6) return true;
+  if (s && s.bad > 0 && s.ok / s.seen < 0.6) return true;
   return (c?.lapses || 0) >= 2;
 }
 
