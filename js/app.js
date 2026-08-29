@@ -817,6 +817,17 @@ window.addEventListener('hashchange', () => {
   QBY = Object.fromEntries(BANK.questions.map(q => [q.id, q]));
   TBY = Object.fromEntries(BANK.topics.map(x => [x.id, x]));
   render();
-  // no service worker on localhost: it only gets in the way while developing
-  if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
+  // No service worker on localhost: it only gets in the way while developing.
+  if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then(reg => reg.update())
+      .catch(() => {});
+    // A new worker claiming the page means the cached assets just changed
+    // underneath us; reload once so the running code matches them.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded) { reloaded = true; location.reload(); }
+    });
+  }
 })();
