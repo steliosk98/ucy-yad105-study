@@ -1,0 +1,14 @@
+{
+  "name": "YAD105 Exam Trainer",
+  "short_name": "YAD105",
+  "description": "Flashcards, mock exams and drills for the UCY YAD105 technical exam.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ucy-yad105-study",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node tests/check.mjs" }
+}
