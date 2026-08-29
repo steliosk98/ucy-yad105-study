@@ -292,13 +292,9 @@ function CardsRun() {
   }
   const q = session.queue[session.i];
   if (!q) return `<div class="empty">${esc(t('emptyDeck'))}</div>`;
-  const srs = S.state.srs[q.id];
   const nextIv = (g) => {
-    if (g < 3) return '<1m';
-    const ef = srs?.ef ?? 2.5, rep = srs?.rep ?? 0, iv = srs?.iv ?? 0;
-    let d = rep === 0 ? 1 : rep === 1 ? 3 : Math.round(iv * ef);
-    if (g === 3) d = Math.max(1, Math.round(d * 0.6));
-    return d === 1 ? '1d' : `${d}d`;
+    const d = S.nextInterval(q.id, g);
+    return d === 0 ? '<1m' : d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
   };
   return `
   <div class="row spread small muted" style="margin-bottom:10px">

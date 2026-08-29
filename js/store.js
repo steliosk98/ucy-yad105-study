@@ -40,8 +40,23 @@ export const today = (d = new Date()) => d.toISOString().slice(0, 10);
 
 // ---------- SRS (SM-2, trimmed) ----------
 // grade: 0 again | 3 hard | 4 good | 5 easy
+
+/** Days until the next review of `id` if graded `grade` now. 0 = later today.
+ *  The card UI shows this on each button, so it is the single source of truth. */
+export function nextInterval(id, grade) {
+  if (grade < 3) return 0;
+  const c = state.srs[id];
+  const rep = (c?.rep || 0) + 1, ef = c?.ef ?? 2.5, iv = c?.iv || 0;
+  let d = rep === 1 ? (grade === 5 ? 4 : 1)
+    : rep === 2 ? (grade === 5 ? 6 : 3)
+      : Math.round(iv * ef);
+  if (grade === 3) d = Math.max(1, Math.round(d * 0.6));
+  return d;
+}
+
 export function schedule(id, grade) {
   const now = Date.now();
+  const iv = nextInterval(id, grade);            // before mutating: preview must equal reality
   const c = state.srs[id] || { ef: 2.5, iv: 0, rep: 0, due: now, lapses: 0, last: 0 };
   if (grade < 3) {
     c.rep = 0; c.iv = 0; c.lapses++;
@@ -49,8 +64,7 @@ export function schedule(id, grade) {
   } else {
     c.ef = Math.max(1.3, c.ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
     c.rep++;
-    c.iv = c.rep === 1 ? 1 : c.rep === 2 ? 3 : Math.round(c.iv * c.ef);
-    if (grade === 3) c.iv = Math.max(1, Math.round(c.iv * 0.6));
+    c.iv = iv;
     c.due = now + c.iv * DAY;
   }
   c.last = now;

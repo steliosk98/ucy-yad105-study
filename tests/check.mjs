@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makeChoices, buildExam, scoreWritten, rng } from '../js/quiz.js';
 
+// store.js persists to localStorage; node has none, so stub it before importing.
+globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+const S = await import('../js/store.js');
+
 const bank = JSON.parse(readFileSync(new URL('../data/questions.json', import.meta.url), 'utf8'));
 const { questions, topics } = bank;
 
@@ -55,4 +59,39 @@ assert.ok(scoreWritten('completely unrelated banana text', 'primary key uniquely
 const r = rng(42), r2 = rng(42);
 assert.deepEqual([r(), r(), r()], [r2(), r2(), r2()], 'seeded rng repeats');
 
-console.log(`ok — ${questions.length} questions, ${topics.length} topics, MCQ + exam builder pass`);
+// --- spaced repetition ---
+{
+  const id = 'Q001';
+  assert.equal(S.nextInterval(id, 0), 0, 'Again comes back the same session');
+  assert.equal(S.nextInterval(id, 3), 1, 'first Hard is a day');
+  assert.equal(S.nextInterval(id, 4), 1, 'first Good is a day');
+  assert.equal(S.nextInterval(id, 5), 4, 'first Easy jumps further than Good');
+
+  // the button preview must match what grading actually schedules
+  for (const grade of [3, 4, 5]) {
+    S.reset();
+    const predicted = S.nextInterval(id, grade);
+    const card = S.schedule(id, grade);
+    assert.equal(card.iv, predicted, `preview != scheduled for grade ${grade}`);
+  }
+
+  S.reset();
+  S.schedule(id, 4); S.schedule(id, 4);            // two good reviews
+  assert.equal(S.state.srs[id].iv, 3, 'second Good is three days');
+  const third = S.schedule(id, 4).iv;
+  assert.ok(third > 3, 'intervals keep growing');
+  assert.ok(!S.isDue(id), 'a scheduled card is not due yet');
+
+  S.schedule(id, 0);
+  assert.ok(S.isDue(id, Date.now() + 61e3), 'a lapse comes back within the session');
+  assert.equal(S.state.srs[id].lapses, 1, 'lapse counted');
+
+  S.reset();
+  S.record(id, false);
+  assert.ok(S.isWeak(id), 'one miss marks a weak spot');
+  S.record(id, true); S.record(id, true);
+  assert.ok(!S.isWeak(id), 'answering it right clears the weak flag');
+  S.reset();
+}
+
+console.log(`ok — ${questions.length} questions, ${topics.length} topics; MCQ, exam builder and scheduler pass`);
