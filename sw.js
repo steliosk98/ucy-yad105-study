@@ -1,6 +1,6 @@
 // Cache-first shell so the trainer works offline on a phone.
 // Bump CACHE on every deploy to invalidate.
-const CACHE = 'yad105-v3';
+const CACHE = 'yad105-v4';
 const ASSETS = [
   './', 'index.html', 'css/style.css', 'js/app.js', 'js/store.js', 'js/quiz.js',
   'data/questions.json', 'manifest.webmanifest', 'icon.svg',
