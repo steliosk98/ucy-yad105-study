@@ -49,6 +49,25 @@ OLED panels don't smear), with a fully worked light counterpart.
   `aria-current` on navigation, `aria-pressed` on toggles, visible focus rings, SVG icons
   rather than emoji.
 
+## The Greek text
+
+The supplied knowledge bank's Greek was heavily code-mixed — some answers were properly
+translated, others left whole English phrases in place ("Reusable server-side processes στο
+application level που μπορούν να καλούνται από pages"). Before the revision, **314 of the
+463 answers were less than half Greek**; now 11 are, and all eleven are pure SQL.
+
+All 463 questions and answers were re-translated for a technical exam sat in Greek. The
+convention: proper Greek prose, the formal Greek term first with the English in parentheses
+on first use (*ευρετήριο (index)*, *πληθικότητα (cardinality)*), and identifiers left exactly
+as they are — SQL keywords, product names, code. `data/GLOSSARY.el.md` holds the term list
+that keeps this consistent across the bank.
+
+The supplied export is never edited. `data/el/*.json` holds the revised Greek keyed by
+question id, and `tools/build_data.py` layers it over the export at build time, so the
+original stays intact as provenance and the re-translation is reviewable as a diff.
+`npm test` guards against regressing: it fails if a non-code answer drops below 50% Greek
+characters, or if a Latin `?` appears where Greek uses `;`.
+
 ## Multiple-choice options
 
 The knowledge bank holds open questions and model answers, with no distractors. Wrong
@@ -65,7 +84,9 @@ css/style.css         mobile-first styles, light/dark
 js/store.js           persistence, SM-2 scheduling, stats
 js/quiz.js            distractor generation, exam sampling, written scoring
 js/app.js             views, routing, events
-data/questions.json   the question bank the app loads
+data/questions.json   the question bank the app loads (generated)
+data/el/*.json        revised Greek, layered over the supplied export
+data/GLOSSARY.el.md   Greek terminology used across the bank
 tests/check.mjs       sanity checks over the real bank
 ```
 

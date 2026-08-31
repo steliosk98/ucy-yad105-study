@@ -38,36 +38,40 @@ const T = {
     saved: 'Saved', pass: 'Pass', fail: 'Below target', target: 'Target 70%',
     weightNote: 'Technical exam = 65% of total score',
     examDate: 'Exam date', daysLeft: 'days left', perDay: 'cards/day to cover everything',
-    today2: 'today', paceDone: 'Bank covered - keep reviewing',
+    today2: 'today', paceDone: 'Bank covered - keep reviewing', language: 'Language',
+    ivMin: '<1m', ivDay: 'd', ivMonth: 'mo',
   },
   el: {
-    home: 'Αρχική', cards: 'Κάρτες', exam: 'Εξέταση', browse: 'Αναζήτηση', stats: 'Πρόοδος',
-    due: 'Για επανάληψη', newq: 'Νέες', learned: 'Κατακτημένες', weak: 'Αδυναμίες', starred: 'Αγαπημένα',
-    readiness: 'Ετοιμότητα', streak: 'Συνεχόμενες μέρες', todayCards: 'Σήμερα',
-    reviewDue: 'Επανάληψη καρτών', quick10: 'Γρήγορες 10 ερωτήσεις', mockExam: 'Πλήρης δοκιμαστική',
-    drillWeak: 'Εξάσκηση αδυναμιών', continueStudy: 'Συνέχεια μελέτης', allTopics: 'Όλες οι ενότητες',
-    topics: 'Ενότητες', start: 'Έναρξη', deck: 'Τράπουλα', length: 'Διάρκεια', difficulty: 'Δυσκολία',
-    all: 'Όλα', easy: 'Εύκολο', medium: 'Μέτριο', hard: 'Δύσκολο', showAnswer: 'Πάτησε για απάντηση',
-    again: 'Ξανά', hardB: 'Δύσκολο', good: 'Καλά', easyB: 'Εύκολο',
-    sessionDone: 'Ολοκληρώθηκε', cardsReviewed: 'κάρτες', backHome: 'Αρχική',
-    questions: 'Ερωτήσεις', timer: 'Χρόνος', mode: 'Μορφή', mcq: 'Πολλαπλής επιλογής',
-    written: 'Γραπτή', mixed: 'Μικτή', minutes: 'λεπτά', noTimer: 'Χωρίς χρόνο',
-    startExam: 'Έναρξη εξέτασης', submit: 'Υποβολή', next: 'Επόμενη', prev: 'Πίσω', finish: 'Τέλος',
-    flag: 'Σημείωση', flagged: 'Σημειωμένες', question: 'Ερώτηση', of: 'από',
-    yourAnswer: 'Γράψε την απάντησή σου…', reveal: 'Δες την απάντηση', gotIt: 'Το βρήκα',
-    missedIt: 'Το έχασα', score: 'Βαθμός', correct: 'Σωστές', incorrect: 'Λάθος',
-    review: 'Ανασκόπηση', byTopic: 'Ανά ενότητα', retryWrong: 'Ξανά όσες έχασα',
-    search: 'Αναζήτηση…', results: 'αποτελέσματα', noResults: 'Κανένα αποτέλεσμα',
-    modelAnswer: 'Ενδεικτική απάντηση', history: 'Ιστορικό', noExams: 'Καμία εξέταση ακόμη',
-    progress: 'Πρόοδος', coverage: 'Κάλυψη', accuracy: 'Ακρίβεια', mastery: 'Κατοχή',
-    settings: 'Ρυθμίσεις', dailyGoal: 'Ημερήσιος στόχος', exportD: 'Εξαγωγή προόδου',
-    importD: 'Εισαγωγή προόδου', resetD: 'Διαγραφή προόδου', resetConfirm: 'Διαγραφή όλης της προόδου;',
-    resume: 'Συνέχιση εξέτασης', discard: 'Απόρριψη', timeUp: 'Ο χρόνος τελείωσε — υποβλήθηκε',
-    unanswered: 'αναπάντητες', keyHint: 'Space γύρισμα · 1-4 βαθμός', emptyDeck: 'Τίποτα εδώ. Διάλεξε άλλη τράπουλα.',
-    saved: 'Αποθηκεύτηκε', pass: 'Επιτυχία', fail: 'Κάτω από στόχο', target: 'Στόχος 70%',
-    weightNote: 'Η τεχνική εξέταση είναι 65% του συνόλου',
-    examDate: 'Ημερομηνία εξέτασης', daysLeft: 'μέρες απομένουν', perDay: 'κάρτες/μέρα για πλήρη κάλυψη',
-    today2: 'σήμερα', paceDone: 'Η τράπεζα καλύφθηκε - συνέχισε επανάληψη',
+    home: 'Αρχική', cards: 'Κάρτες', exam: 'Εξέταση', browse: 'Ερωτήσεις', stats: 'Πρόοδος',
+    due: 'Προς επανάληψη', newq: 'Νέες', learned: 'Κατακτημένες', weak: 'Αδύνατα σημεία', starred: 'Επισημασμένες',
+    readiness: 'Ετοιμότητα', streak: 'Ημέρες σερί', todayCards: 'Σήμερα',
+    reviewDue: 'Επανάληψη καρτών', quick10: 'Γρήγορες 10 ερωτήσεις', mockExam: 'Πλήρης δοκιμαστική εξέταση',
+    drillWeak: 'Εξάσκηση στα αδύνατα σημεία', continueStudy: 'Συνέχεια μελέτης', allTopics: 'Όλες οι ενότητες',
+    topics: 'Ενότητες', start: 'Έναρξη', deck: 'Σύνολο καρτών', length: 'Αριθμός καρτών', difficulty: 'Δυσκολία',
+    all: 'Όλα', easy: 'Εύκολη', medium: 'Μέτρια', hard: 'Δύσκολη', showAnswer: 'Εμφάνιση απάντησης',
+    again: 'Ξανά', hardB: 'Δύσκολη', good: 'Καλή', easyB: 'Εύκολη',
+    sessionDone: 'Η μελέτη ολοκληρώθηκε', cardsReviewed: 'κάρτες σε επανάληψη', backHome: 'Επιστροφή στην αρχική',
+    questions: 'Ερωτήσεις', timer: 'Χρόνος', mode: 'Μορφή εξέτασης', mcq: 'Πολλαπλής επιλογής',
+    written: 'Ανάπτυξης', mixed: 'Μικτή', minutes: 'λεπτά', noTimer: 'Χωρίς χρονικό όριο',
+    startExam: 'Έναρξη εξέτασης', submit: 'Υποβολή', next: 'Επόμενη', prev: 'Προηγούμενη', finish: 'Τέλος',
+    flag: 'Επισήμανση', flagged: 'Επισημασμένες', question: 'Ερώτηση', of: 'από',
+    yourAnswer: 'Γράψτε την απάντησή σας…', reveal: 'Εμφάνιση ενδεικτικής απάντησης', gotIt: 'Την απάντησα σωστά',
+    missedIt: 'Δεν την απάντησα', score: 'Βαθμολογία', correct: 'Σωστές', incorrect: 'Λάθος',
+    review: 'Ανασκόπηση απαντήσεων', byTopic: 'Ανά ενότητα', retryWrong: 'Επανάληψη όσων έχασα',
+    search: 'Αναζήτηση ερωτήσεων…', results: 'αποτελέσματα', noResults: 'Δεν βρέθηκε τίποτα',
+    modelAnswer: 'Ενδεικτική απάντηση', history: 'Ιστορικό εξετάσεων', noExams: 'Καμία εξέταση ακόμη',
+    progress: 'Πρόοδος', coverage: 'Κάλυψη ύλης', accuracy: 'Ευστοχία', mastery: 'Εμπέδωση',
+    settings: 'Ρυθμίσεις', dailyGoal: 'Ημερήσιος στόχος (κάρτες)', exportD: 'Εξαγωγή προόδου',
+    importD: 'Εισαγωγή προόδου', resetD: 'Διαγραφή όλης της προόδου',
+    resetConfirm: 'Διαγραφή όλης της προόδου; Η ενέργεια δεν αναιρείται.',
+    resume: 'Συνέχιση εξέτασης σε εξέλιξη', discard: 'Απόρριψη', timeUp: 'Ο χρόνος εξαντλήθηκε — η εξέταση υποβλήθηκε',
+    unanswered: 'αναπάντητες', keyHint: 'Space για αναστροφή · 1-4 για βαθμολόγηση',
+    emptyDeck: 'Δεν υπάρχει κάτι για επανάληψη εδώ. Επιλέξτε άλλο σύνολο καρτών.',
+    saved: 'Αποθηκεύτηκε', pass: 'Επιτυχία', fail: 'Κάτω από τον στόχο', target: 'Στόχος 70%',
+    weightNote: 'Η τεχνική εξέταση αντιστοιχεί στο 65% της συνολικής βαθμολογίας',
+    examDate: 'Ημερομηνία εξέτασης', daysLeft: 'ημέρες απομένουν', perDay: 'κάρτες/ημέρα για πλήρη κάλυψη',
+    today2: 'σήμερα', paceDone: 'Η ύλη καλύφθηκε — συνεχίστε τις επαναλήψεις', language: 'Γλώσσα',
+    ivMin: '<1 λ.', ivDay: ' ημ.', ivMonth: ' μήν.',
   }
 };
 const uiLang = () => (S.state.lang === 'el' ? 'el' : 'en');
@@ -329,7 +333,7 @@ function CardsRun() {
   if (!q) return `<div class="empty">${ico('layers')}<div>${esc(t('emptyDeck'))}</div></div>`;
   const nextIv = (g) => {
     const d = S.nextInterval(q.id, g);
-    return d === 0 ? '<1m' : d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
+    return d === 0 ? t('ivMin') : d < 30 ? `${d}${t('ivDay')}` : `${Math.round(d / 30)}${t('ivMonth')}`;
   };
   return `
   <div class="row spread" style="margin-bottom:var(--s-2)">
@@ -380,7 +384,7 @@ function flipCard() {
   const q = session.queue[session.i];
   const nextIv = (g) => {
     const d = S.nextInterval(q.id, g);
-    return d === 0 ? '<1m' : d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
+    return d === 0 ? t('ivMin') : d < 30 ? `${d}${t('ivDay')}` : `${Math.round(d / 30)}${t('ivMonth')}`;
   };
   $('#card')?.classList.add('flipped');
   $('#card .front')?.setAttribute('aria-hidden', 'true');
@@ -667,7 +671,7 @@ function Settings() {
       <input id="examDate" type="date" value="${esc(S.state.examDate)}"></label>
     <label class="field"><span>${esc(t('dailyGoal'))}</span>
       <input id="goal" type="number" min="5" max="200" step="5" value="${S.state.dailyGoal}"></label>
-    <label class="field"><span>${esc(t('settings'))} · language</span>
+    <label class="field"><span>${esc(t('language'))}</span>
       <select id="langSel">
         <option value="en" ${S.state.lang === 'en' ? 'selected' : ''}>English</option>
         <option value="el" ${S.state.lang === 'el' ? 'selected' : ''}>Ελληνικά</option>

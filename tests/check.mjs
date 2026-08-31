@@ -94,4 +94,31 @@ assert.deepEqual([r(), r(), r()], [r2(), r2(), r2()], 'seeded rng repeats');
   S.reset();
 }
 
-console.log(`ok — ${questions.length} questions, ${topics.length} topics; MCQ, exam builder and scheduler pass`);
+// --- Greek quality ---------------------------------------------------------
+// The bank shipped heavily code-mixed Greek ("Reusable server-side processes στο
+// application level..."). data/el/*.json replaces it. Guard against regressing:
+// prose must actually be Greek, apart from answers that are genuinely SQL.
+{
+  const CODE_ANSWERS = new Set(
+    ['Q056', 'Q057', 'Q058', 'Q059', 'Q060', 'Q061', 'Q064', 'Q065', 'Q069', 'Q157', 'Q163']);
+
+  const greekRatio = (s) => {
+    const gr = (s.match(/[Ͱ-Ͽἀ-῿]/g) || []).length;
+    const la = (s.match(/[A-Za-z]/g) || []).length;
+    return gr + la ? gr / (gr + la) : 1;
+  };
+
+  const thin = [];
+  for (const q of questions) {
+    if (!CODE_ANSWERS.has(q.id) && greekRatio(q.ag) < 0.5) thin.push(`${q.id} answer`);
+    if (greekRatio(q.qg) < 0.2) thin.push(`${q.id} question`);
+    // Greek uses ';' as its question mark, never '?'
+    assert.ok(!q.qg.includes('?') && !q.ag.includes('?'), `${q.id} uses a Latin question mark`);
+  }
+  assert.deepEqual(thin, [], 'Greek text fell back to English-heavy code-mixing');
+
+  const revised = questions.filter(q => greekRatio(q.ag) >= 0.5 || CODE_ANSWERS.has(q.id)).length;
+  assert.equal(revised, questions.length, 'every question should have reviewed Greek');
+}
+
+console.log(`ok — ${questions.length} questions, ${topics.length} topics; MCQ, exam builder, scheduler and Greek checks pass`);
