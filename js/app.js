@@ -1,3 +1,4 @@
+import { CRAM } from './cram.js';
 import { createLearning, copy as learningCopy } from './learn-view.js';
 import * as S from './store.js';
 import { makeChoices, buildExam, shuffle, scoreWritten } from './quiz.js';
@@ -133,7 +134,9 @@ const starBtn = (id, on) =>
 function go(hash) { location.hash = hash; }
 
 // ---------------------------------------------------------------- decks
+const essentialIds = new Set(CRAM.flatMap(l => l.ids));
 const decks = {
+  cram: () => BANK.questions.filter(q => essentialIds.has(q.id) && !S.isNew(q.id) && S.isDue(q.id)),
   due: () => BANK.questions.filter(q => !S.isNew(q.id) && S.isDue(q.id)),
   new: () => BANK.questions.filter(q => S.isNew(q.id)),
   weak: () => BANK.questions.filter(q => S.isWeak(q.id)),

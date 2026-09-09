@@ -19,14 +19,14 @@ globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} }
 globalThis.fetch = async () => ({ json: async () => bank });
 await import('../js/app.js');
 await new Promise(resolve => setTimeout(resolve, 0));
-assert.ok(get('#view').innerHTML.includes('Your learning path'));
+assert.ok(get('#view').innerHTML.includes('Your 7-day exam sprint'));
 const route = hash => { location.hash = hash; winEvents.hashchange(); };
 const click = (action, value = '') => {
   const button = { dataset: { learn: action, value } };
   for (const fn of docEvents.click) fn({ target: { closest: () => button } });
   winEvents.hashchange();
 };
-click('start', bank.questions.slice(0,5).map(q => q.id).join('-'));
+click('start', 'cram-v1-day-1');
 assert.ok(get('#view').innerHTML.includes(bank.questions[0].qe));
 get('#langBtn').onclick();
 assert.ok(get('#view').innerHTML.includes(bank.questions[0].qg));
@@ -38,11 +38,19 @@ click('advance');
 route('#/');
 assert.ok(get('#view').innerHTML.includes('data-go="#/learn"'));
 route('#/learn/run');
-assert.ok(get('#view').innerHTML.includes(bank.questions[1].qe));
+assert.ok(get('#view').innerHTML.includes(bank.questions.find(q => q.id === 'Q005').qe));
 for (const hash of ['#/cards', '#/exam', '#/browse', '#/stats', '#/settings']) {
   route(hash);
   assert.ok(get('#view').innerHTML.length > 100, hash);
 }
+const S = await import('../js/store.js');
+S.state.srs.Q001 = { due: Date.now() - 1000 };
+S.state.srs.Q002 = { due: Date.now() - 1000 }; // Not part of the SOS selection.
+S.state.srs.Q005 = { due: Date.now() + 864e5 };
+route('#/cards/run?deck=cram&n=20');
+assert.ok(get('#view').innerHTML.includes(bank.questions[0].qe));
+assert.ok(!get('#view').innerHTML.includes(bank.questions[1].qe));
+assert.ok(get('#view').innerHTML.includes('1 of 1'), 'SOS review selects only due essential cards');
 const worker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
-for (const file of ['js/learn.js', 'js/learn-view.js']) assert.ok(worker.includes(file), 'offline asset included');
+for (const file of ['js/learn.js', 'js/learn-view.js', 'js/cram.js']) assert.ok(worker.includes(file), 'offline asset included');
 console.log('ok — app boot, learning routes, language switch, pause/navigation, existing views and offline asset manifest');

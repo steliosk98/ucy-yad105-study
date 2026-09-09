@@ -639,3 +639,14 @@ mark { padding: 0 3px; border-radius: 4px; background: var(--warn-soft); color: 
   .learn-node { gap: 12px; }
   .learn-stats { gap: 8px; }
 }
+
+/* Seven-day course: a compact mode switch and readable daily memory briefs. */
+.cram-modes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.cram-modes > .btn { flex: 1; font-size: .875rem; }
+.cram-brief { padding: 0 24px 12px; font-size: 1rem; line-height: 1.7; }
+.cram-brief h3 { font-size: .875rem; color: var(--accent); margin: 0 0 8px; }
+.cram-brief ul { margin: 0; padding-left: 20px; }
+.cram-brief li { margin-bottom: 12px; }
+.cram-brief .alt, .learn-unit summary .alt, .cram-summary .alt { display: block; margin-top: 8px; color: var(--fg-muted); }
+.cram-summary summary { min-height: 44px; cursor: pointer; font-size: .875rem; line-height: 1.6; }
+.cram-summary .cram-brief { padding: 20px 0 0; }

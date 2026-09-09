@@ -9,9 +9,39 @@ knowledge bank of **463 bilingual (EN/EL) questions** across 15 topics.
 Static site, no build step, no backend. All progress lives in your browser's
 `localStorage`, so it is private to your device (export/import it from Settings).
 
+## Seven-day SOS course
+
+**Learn now opens on the seven-day course:** 140 curated essentials, 20 questions per
+lesson, with one suggested lesson per day and no calendar locks. Allow roughly 60–90
+minutes daily for study, recall and due-card review; the estimate depends on familiarity.
+
+| Day | Focus |
+| --- | --- |
+| 1 | Database design, normalization, keys and transactions |
+| 2 | Practical SQL and query performance |
+| 3 | Oracle, PL/SQL and APEX |
+| 4 | Requirements, architecture and delivery |
+| 5 | APIs, integration and application security |
+| 6 | Testing, recovery, support and accessibility |
+| 7 | Applied SOS scenarios, procurement and safe upgrades |
+
+Selection uses the bank's topic priorities, foundational concepts and transferable
+scenario skills. It is an editorial study shortlist, not a prediction of exam questions.
+Each day has three bilingual “must know” summaries and uses the original reviewed
+question/answer text. Start with due essentials, study the day's questions, then recall
+without looking. Missed questions repeat. The review action includes only due questions
+from the shortlist. All seven days can be started early; finish or resume an active lesson
+before starting another in the same course.
+
+The **Full question bank** switch retains the 98-lesson course. Course completion, drafts
+and XP are separate; both feed shared question stats and spaced repetition. Old progress
+and backups remain compatible. New and existing installations default to the SOS course
+unless a course preference has already been saved. `js/cram.js` contains the reviewed
+selection, bilingual titles and daily summaries.
+
 ## Features
 
-- **Learn** — a Duolingo-style path of 98 short lessons covering all 463 questions,
+- **Full question bank** — a Duolingo-style path of 98 short lessons covering all 463 questions,
   grouped into the bank's 15 topics. Study up to five model answers, then practise
   recalling each one before revealing and self-assessing it. Missed questions return
   until recalled. Complete lessons in order, replay completed lessons, and continue

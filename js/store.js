@@ -6,6 +6,8 @@ const DAY = 864e5;
 const defaults = () => ({
   v: 1,
   learning: freshLearning(),
+  cramLearning: freshLearning(),
+  learningMode: 'cram',
   lang: 'en',          // en | el | both
   theme: 'auto',       // auto | light | dark
   dailyGoal: 30,

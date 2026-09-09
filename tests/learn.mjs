@@ -68,6 +68,7 @@ const handlers = {};
 globalThis.document = { addEventListener: (event,fn) => handlers[event] = fn, querySelector: () => null };
 globalThis.location = { hash: '' };
 const esc = s => String(s).replace(/[&<>\"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+S.state.learningMode = 'full';
 const ui = createLearning({ S, bank, esc, ico: () => '', topicName: id => bank.topics.find(t => t.id === id)[S.state.lang === 'el' ? 'el' : 'en'], render() {} });
 ui.action('start', lessons[1].id);
 assert.equal(S.state.learning.active, null, 'locked lessons cannot be started by action');
