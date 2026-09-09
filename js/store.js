@@ -1,9 +1,11 @@
+import { freshLearning } from './learn.js';
 // Persistent state: SRS scheduling, per-question stats, exam history, settings.
 const KEY = 'yad105.v1';
 const DAY = 864e5;
 
 const defaults = () => ({
   v: 1,
+  learning: freshLearning(),
   lang: 'en',          // en | el | both
   theme: 'auto',       // auto | light | dark
   dailyGoal: 30,
@@ -34,6 +36,16 @@ export function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); }
     catch (e) { console.warn('save failed', e); }
   }, 120);
+}
+
+export function flush() {
+  clearTimeout(pending);
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { console.warn('save failed', e); }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 }
 
 export const today = (d = new Date()) => d.toISOString().slice(0, 10);

@@ -1,3 +1,4 @@
+import { createLearning, copy as learningCopy } from './learn-view.js';
 import * as S from './store.js';
 import { makeChoices, buildExam, shuffle, scoreWritten } from './quiz.js';
 
@@ -74,6 +75,9 @@ const T = {
     ivMin: '<1 λ.', ivDay: ' ημ.', ivMonth: ' μήν.',
   }
 };
+T.en.learn = learningCopy.en.learn;
+T.el.learn = learningCopy.el.learn;
+let learningUI;
 const uiLang = () => (S.state.lang === 'el' ? 'el' : 'en');
 const t = (k) => T[uiLang()][k] ?? T.en[k] ?? k;
 const topicName = (id) => (TBY[id] ? (uiLang() === 'el' ? TBY[id].el : TBY[id].en) : id);
@@ -224,7 +228,8 @@ function Home() {
     </div>`;
   })()}
   <div class="stack">
-    <button class="btn primary" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${ico('cards')}${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
+    <button class="btn primary" data-go="#/learn">${ico('bolt')}${esc(t('learn'))}</button>
+    <button class="btn" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${ico('cards')}${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
     <button class="btn" data-go="#/exam/run?n=10&mode=mcq&time=0">${ico('bolt')}${esc(t('quick10'))}</button>
     <button class="btn" data-go="#/exam">${ico('exam')}${esc(t('mockExam'))}</button>
     ${weak ? `<button class="btn" data-go="#/cards/run?deck=weak&n=20">${ico('target')}${esc(t('drillWeak'))} (${weak})</button>` : ''}
@@ -704,6 +709,8 @@ function render() {
   let html, title = 'YAD105', tab = 'home', back = false;
 
   if (path === '/' || path === '') { html = Home(); }
+  else if (path === '/learn') { html = learningUI.path(); title = t('learn'); tab = 'learn'; }
+  else if (path === '/learn/run') { html = learningUI.run(); title = t('learn'); tab = 'learn'; }
   else if (path === '/cards') { html = CardsSetup(); title = t('cards'); tab = 'cards'; }
   else if (path === '/cards/run') {
     tab = 'cards'; title = t('cards'); back = true;
@@ -738,6 +745,7 @@ function render() {
   }
   document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t(n.dataset.i18n.split('.')[1]); });
   window.scrollTo(0, 0);
+  if (path === '/learn/run') $('[data-learn-focus]')?.focus({ preventScroll: true });
 
   if (exam && !exam.result && exam.endsAt) startClock();
   if (path === '/browse') {
@@ -761,6 +769,7 @@ document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-go],[data-star],[data-grade],[data-pick],[data-self],[data-flagq],button,#card');
   if (!el) return;
 
+  if (el.dataset.learn) { learningUI.action(el.dataset.learn, el.dataset.value); return; }
   if (el.dataset.go) { go(el.dataset.go); return; }
 
   if (el.dataset.star) {
@@ -912,6 +921,7 @@ window.addEventListener('hashchange', () => {
   }
   QBY = Object.fromEntries(BANK.questions.map(q => [q.id, q]));
   TBY = Object.fromEntries(BANK.topics.map(x => [x.id, x]));
+  learningUI = createLearning({ S, bank: BANK, esc, ico, topicName, render });
   render();
   // No service worker on localhost: it only gets in the way while developing.
   if ('serviceWorker' in navigator && location.hostname !== 'localhost') {

@@ -2,5 +2,5 @@
   "name": "ucy-yad105-study",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node tests/check.mjs" }
+  "scripts": { "test": "node tests/check.mjs && node tests/learn.mjs && node tests/app-smoke.mjs" }
 }

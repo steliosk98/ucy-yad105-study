@@ -11,6 +11,18 @@ Static site, no build step, no backend. All progress lives in your browser's
 
 ## Features
 
+- **Learn** — a Duolingo-style path of 98 short lessons covering all 463 questions,
+  grouped into the bank's 15 topics. Study up to five model answers, then practise
+  recalling each one before revealing and self-assessing it. Missed questions return
+  until recalled. Complete lessons in order, replay completed lessons, and continue
+  with as many lessons per day as you want. Set a separate daily lesson goal (1–5),
+  maintain a local-calendar streak, and earn 10 XP per question on first completion.
+  Lessons resume after navigation or reload, including written drafts. English, Greek,
+  and side-by-side modes work throughout. Progress is device-local and included in
+  Settings export/import/reset. Recall results feed existing stats and spaced repetition;
+  retries do not artificially advance review intervals. Completion means initial coverage,
+  not long-term mastery: use **Review due cards** to retain what you learn.
+
 - **Flashcards** with SM-2 spaced repetition — *Again / Hard / Good / Easy*, showing the
   next interval on each button. Missed cards come back later in the same session.
 - **Mock exams** — multiple choice (auto-graded), written (self-graded against the model
@@ -83,6 +95,8 @@ index.html            app shell
 css/style.css         mobile-first styles, light/dark
 js/store.js           persistence, SM-2 scheduling, stats
 js/quiz.js            distractor generation, exam sampling, written scoring
+js/learn.js           curriculum, lesson state machine, XP and local-day streaks
+js/learn-view.js      bilingual learning path and lesson UI
 js/app.js             views, routing, events
 data/questions.json   the question bank the app loads (generated)
 data/el/*.json        revised Greek, layered over the supplied export
@@ -101,7 +115,10 @@ npm test
 ```
 
 The test asserts data integrity and that every question in both languages yields four
-distinct options containing the correct answer.
+distinct options containing the correct answer. Learning tests cover complete bank
+coverage, lesson progression, mistake retries, unlimited daily lessons, XP idempotency,
+calendar boundaries, migration from old backups, persistence, escaped drafts, and all
+three language modes. No build step or additional runtime dependencies are needed.
 
 Regenerate `data/questions.json` from a new knowledge-bank export with
 `tools/build_data.py`.
