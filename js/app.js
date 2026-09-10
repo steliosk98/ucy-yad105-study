@@ -1,3 +1,4 @@
+import { sosGuide, guideCopy } from './sos-guide.js';
 import { CRAM } from './cram.js';
 import { createLearning, copy as learningCopy } from './learn-view.js';
 import * as S from './store.js';
@@ -76,6 +77,8 @@ const T = {
     ivMin: '<1 λ.', ivDay: ' ημ.', ivMonth: ' μήν.',
   }
 };
+T.en.guide = guideCopy.en.title;
+T.el.guide = guideCopy.el.title;
 T.en.learn = learningCopy.en.learn;
 T.el.learn = learningCopy.el.learn;
 let learningUI;
@@ -232,6 +235,7 @@ function Home() {
   })()}
   <div class="stack">
     <button class="btn primary" data-go="#/learn">${ico('bolt')}${esc(t('learn'))}</button>
+    <button class="btn" data-go="#/sos">${ico('exam')}${esc(t('guide'))}</button>
     <button class="btn" data-go="#/cards/run?deck=${due ? 'due' : 'new'}&n=20">${ico('cards')}${esc(due ? t('reviewDue') : t('continueStudy'))}</button>
     <button class="btn" data-go="#/exam/run?n=10&mode=mcq&time=0">${ico('bolt')}${esc(t('quick10'))}</button>
     <button class="btn" data-go="#/exam">${ico('exam')}${esc(t('mockExam'))}</button>
@@ -712,6 +716,7 @@ function render() {
   let html, title = 'YAD105', tab = 'home', back = false;
 
   if (path === '/' || path === '') { html = Home(); }
+  else if (path === '/sos') { html = sosGuide(BANK, S.state.lang, esc); title = t('guide'); tab = 'learn'; }
   else if (path === '/learn') { html = learningUI.path(); title = t('learn'); tab = 'learn'; }
   else if (path === '/learn/run') { html = learningUI.run(); title = t('learn'); tab = 'learn'; }
   else if (path === '/cards') { html = CardsSetup(); title = t('cards'); tab = 'cards'; }
@@ -732,6 +737,7 @@ function render() {
   else if (path === '/settings') { html = Settings(); title = t('settings'); back = true; }
   else { html = Home(); }
 
+  document.documentElement.dataset.printGuide = String(path === '/sos');
   view.innerHTML = html;
   view.classList.remove('view-enter');
   void view.offsetWidth;                 // restart the stagger on every view change
@@ -772,6 +778,13 @@ document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-go],[data-star],[data-grade],[data-pick],[data-self],[data-flagq],button,#card');
   if (!el) return;
 
+  if (el.id === 'printGuide') { window.print(); return; }
+  if (el.dataset.guideDay) {
+    const section = $('#guide-day-' + el.dataset.guideDay);
+    section?.scrollIntoView();
+    const heading = section?.querySelector('h2');
+    heading?.setAttribute('tabindex', '-1'); heading?.focus({ preventScroll: true }); return;
+  }
   if (el.dataset.learn) { learningUI.action(el.dataset.learn, el.dataset.value); return; }
   if (el.dataset.go) { go(el.dataset.go); return; }
 

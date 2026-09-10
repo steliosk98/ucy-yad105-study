@@ -11,7 +11,7 @@ class Element {
 const get = key => { if (!elements.has(key)) elements.set(key, new Element()); return elements.get(key); };
 globalThis.document = { querySelector: get, querySelectorAll: () => [], documentElement: new Element(),
   addEventListener: (k, fn) => (docEvents[k] ||= []).push(fn) };
-globalThis.window = { addEventListener: (k,fn) => winEvents[k] = fn, scrollTo() {} };
+globalThis.window = { addEventListener: (k,fn) => winEvents[k] = fn, scrollTo() {}, print() { globalThis.printCalled = true; } };
 let hashValue = '#/learn';
 globalThis.location = { get hash() { return hashValue; }, set hash(v) { hashValue = v.startsWith('#') ? v : '#' + v; }, hostname: 'localhost' };
 globalThis.history = { replaceState() {}, pushState() {} };
@@ -51,6 +51,13 @@ route('#/cards/run?deck=cram&n=20');
 assert.ok(get('#view').innerHTML.includes(bank.questions[0].qe));
 assert.ok(!get('#view').innerHTML.includes(bank.questions[1].qe));
 assert.ok(get('#view').innerHTML.includes('1 of 1'), 'SOS review selects only due essential cards');
+route('#/sos');
+assert.equal(document.documentElement.dataset.printGuide, 'true');
+assert.ok(get('#view').innerHTML.includes('Q463'));
+for (const fn of docEvents.click) fn({ target: { closest: () => ({ id: 'printGuide', dataset: {} }) } });
+assert.equal(globalThis.printCalled, true);
+route('#/learn');
+assert.equal(document.documentElement.dataset.printGuide, 'false');
 const worker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
-for (const file of ['js/learn.js', 'js/learn-view.js', 'js/cram.js']) assert.ok(worker.includes(file), 'offline asset included');
+for (const file of ['js/learn.js', 'js/learn-view.js', 'js/cram.js', 'js/sos-guide.js']) assert.ok(worker.includes(file), 'offline asset included');
 console.log('ok — app boot, learning routes, language switch, pause/navigation, existing views and offline asset manifest');

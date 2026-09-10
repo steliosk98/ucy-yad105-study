@@ -1,3 +1,4 @@
+import { guideCopy } from './sos-guide.js';
 import { cramCurriculum } from './cram.js';
 import { curriculum, freshLearning, localDay, learningStreak, beginLesson, advanceStudy, assess, completeLesson } from './learn.js';
 
@@ -87,6 +88,7 @@ export function createLearning({ S, bank, esc, ico, topicName, render }) {
     return `<div class="cram-modes" role="group" aria-label="${esc(t('path'))}">
       <button class="btn ${isCram() ? 'primary' : ''}" data-learn="mode" data-value="cram" aria-pressed="${isCram()}">${esc(t('cram'))}</button>
       <button class="btn ${!isCram() ? 'primary' : ''}" data-learn="mode" data-value="full" aria-pressed="${!isCram()}">${esc(t('full'))}</button></div>
+    <a class="btn guide-entry" href="#/sos">${esc(guideCopy[S.state.lang === 'el' ? 'el' : 'en'].title)}</a>
     <section class="card learn-hero">
       <div class="label">YAD105 · ${esc(t('learn'))}</div><h2>${esc(t(isCram() ? 'cramPath' : 'path'))}</h2><p class="muted">${esc(t(isCram() ? 'cramIntro' : 'intro'))}</p>
       <div class="learn-stats"><div><b>${doneToday}/${goal}</b><span>${esc(t('today'))}</span></div><div><b>${learningStreak(p.days)}</b><span>${esc(t('streak'))}</span></div><div><b>${Object.values(p.completed).reduce((n, v) => n + v.xp, 0)}</b><span>${esc(t('xp'))}</span></div></div>

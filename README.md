@@ -39,6 +39,20 @@ and backups remain compatible. New and existing installations default to the SOS
 unless a course preference has already been saved. `js/cram.js` contains the reviewed
 selection, bilingual titles and daily summaries.
 
+## Printable SOS guide
+
+Open **SOS printable guide** from Home or Learn (`#/sos`) for one continuous reference
+page containing all 140 selected questions and their full model answers, grouped by day.
+It includes the daily essentials and seven accessible diagrams: relationships, SQL
+filtering/grouping, APEX architecture, traceability, idempotency, recovery objectives and
+upgrade flow. All question text, answers and diagram explanations support EN/EL/both.
+
+Use **Print / Save as PDF** or the browser print command. Print CSS removes app controls,
+uses black on white regardless of theme, keeps question/answer blocks together where
+possible and begins each day on a fresh A4 sheet. This is one web page, not a single sheet
+of paper. The guide works offline through the existing service-worker cache. Printing and
+reading it do not change study progress.
+
 ## Features
 
 - **Full question bank** — a Duolingo-style path of 98 short lessons covering all 463 questions,
